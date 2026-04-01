@@ -1,3 +1,11 @@
+# Markwork - Interactive and Collaborative Feedback Platform
+# Copyright (C) 2026 Joseph Perez
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
