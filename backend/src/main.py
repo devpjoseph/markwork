@@ -1,6 +1,6 @@
 # Markwork - Interactive and Collaborative Feedback Platform
 # Copyright (C) 2026 Joseph Perez
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -17,16 +17,18 @@ from src.config import settings
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.PROJECT_NAME,
-        openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
-        docs_url=f"{settings.API_V1_PREFIX}/docs",
+        openapi_url=f"{settings.API_V1_PREFIX}/openapi.json"
+        if settings.is_development
+        else None,
+        docs_url=f"{settings.API_V1_PREFIX}/docs" if settings.is_development else None,
     )
 
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.ALLOWED_ORIGINS,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
     )
 
     prefix = settings.API_V1_PREFIX
@@ -41,7 +43,7 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["health"])
     async def health() -> dict:
-        return {"status": "ok", "environment": settings.ENVIRONMENT}
+        return {"status": "ok"}
 
     return app
 

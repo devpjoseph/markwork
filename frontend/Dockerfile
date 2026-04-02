@@ -3,9 +3,12 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
+
+RUN adduser -D appuser
+USER appuser
 
 EXPOSE 5173
 

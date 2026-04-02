@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 from src.domain.entities.assignment import AssignmentEntity, AssignmentStatus
-from src.domain.entities.user import UserRole
 from src.domain.exceptions.assignment_exceptions import (
     AssignmentNotFoundError,
     InvalidStatusTransitionError,
@@ -38,9 +37,13 @@ async def start_review(
         raise UnauthorizedAssignmentAccessError()
 
     if assignment.status != AssignmentStatus.PENDING_REVIEW:
-        raise InvalidStatusTransitionError(assignment.status.value, AssignmentStatus.IN_REVIEW.value)
+        raise InvalidStatusTransitionError(
+            assignment.status.value, AssignmentStatus.IN_REVIEW.value
+        )
 
-    return await assignment_repo.update_status(assignment_id, AssignmentStatus.IN_REVIEW)
+    return await assignment_repo.update_status(
+        assignment_id, AssignmentStatus.IN_REVIEW
+    )
 
 
 async def finalize_review(

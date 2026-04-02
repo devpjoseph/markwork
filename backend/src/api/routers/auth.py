@@ -1,18 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.dependencies.repositories import get_user_repo
 from src.application.use_cases.authenticate_user import authenticate_with_google
-from src.domain.entities.user import UserEntity, UserRole
-from src.infrastructure.database.session import get_db
-from src.infrastructure.repositories.user_repository import UserRepository
+from src.domain.entities.user import UserEntity
+from src.infrastructure.auth.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 class GoogleAuthRequest(BaseModel):
     id_token: str
-    role: UserRole = UserRole.STUDENT
 
 
 class AuthResponse(BaseModel):
@@ -24,18 +22,20 @@ class AuthResponse(BaseModel):
 @router.post("/google", response_model=AuthResponse, status_code=status.HTTP_200_OK)
 async def google_login(
     body: GoogleAuthRequest,
-    session: AsyncSession = Depends(get_db),
+    user_repo=Depends(get_user_repo),
 ) -> AuthResponse:
-    user_repo = UserRepository(session)
+    auth_service = AuthService()
     try:
         result = await authenticate_with_google(
             google_id_token=body.id_token,
-            default_role=body.role,
             user_repo=user_repo,
+            auth_service=auth_service,
         )
     except PermissionError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc))
 
-    return AuthResponse(access_token=result.access_token, token_type=result.token_type, user=result.user)
+    return AuthResponse(
+        access_token=result.access_token, token_type=result.token_type, user=result.user
+    )

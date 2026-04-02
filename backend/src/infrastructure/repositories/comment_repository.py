@@ -13,7 +13,9 @@ class CommentRepository(ICommentRepository):
         self._session = session
 
     async def get_by_id(self, comment_id: uuid.UUID) -> CommentEntity | None:
-        result = await self._session.execute(select(Comment).where(Comment.id == comment_id))
+        result = await self._session.execute(
+            select(Comment).where(Comment.id == comment_id)
+        )
         comment = result.scalar_one_or_none()
         return CommentEntity.model_validate(comment) if comment else None
 
@@ -47,8 +49,12 @@ class CommentRepository(ICommentRepository):
         await self._session.refresh(comment)
         return CommentEntity.model_validate(comment)
 
-    async def update_status(self, comment_id: uuid.UUID, status: CommentStatus) -> CommentEntity | None:
-        result = await self._session.execute(select(Comment).where(Comment.id == comment_id))
+    async def update_status(
+        self, comment_id: uuid.UUID, status: CommentStatus
+    ) -> CommentEntity | None:
+        result = await self._session.execute(
+            select(Comment).where(Comment.id == comment_id)
+        )
         comment = result.scalar_one_or_none()
         if not comment:
             return None
@@ -57,8 +63,12 @@ class CommentRepository(ICommentRepository):
         await self._session.refresh(comment)
         return CommentEntity.model_validate(comment)
 
-    async def update_content(self, comment_id: uuid.UUID, content: str) -> CommentEntity | None:
-        result = await self._session.execute(select(Comment).where(Comment.id == comment_id))
+    async def update_content(
+        self, comment_id: uuid.UUID, content: str
+    ) -> CommentEntity | None:
+        result = await self._session.execute(
+            select(Comment).where(Comment.id == comment_id)
+        )
         comment = result.scalar_one_or_none()
         if not comment:
             return None
@@ -68,7 +78,9 @@ class CommentRepository(ICommentRepository):
         return CommentEntity.model_validate(comment)
 
     async def delete(self, comment_id: uuid.UUID) -> None:
-        result = await self._session.execute(select(Comment).where(Comment.id == comment_id))
+        result = await self._session.execute(
+            select(Comment).where(Comment.id == comment_id)
+        )
         comment = result.scalar_one_or_none()
         if comment:
             await self._session.delete(comment)

@@ -1,39 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '@application/theme/useTheme'
 import type { Assignment, AssignmentStatus } from '@domain/models'
-import type { ThemeColors } from '@application/theme/themeTokens'
+import { formatDate, getBadgeStyle, getStatusGroups, TEACHER_STATUS_ORDER } from '../utils/dashboardUtils'
 
-const STATUS_GROUPS: { status: AssignmentStatus; label: string; useAccent?: boolean }[] = [
-  { status: 'PENDING_REVIEW',   label: 'Pending Review' },
-  { status: 'IN_REVIEW',        label: 'In Review' },
-  { status: 'REQUIRES_CHANGES', label: 'Returned for Revision', useAccent: true },
-  { status: 'APPROVED',         label: 'Approved' },
-]
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffHours / 24)
-
-  if (diffHours < 1) return 'Just now'
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 7) return `${diffDays} days ago`
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function getBadgeStyle(status: AssignmentStatus, colors: ThemeColors): { bg: string; color: string; label: string } {
-  const map: Record<AssignmentStatus, { bg: string; color: string; label: string }> = {
-    REQUIRES_CHANGES: { bg: colors.statusRequiresChanges.bg, color: colors.statusRequiresChanges.text, label: 'Returned' },
-    PENDING_REVIEW:   { bg: colors.statusPending.bg, color: colors.statusPending.text, label: 'Pending Review' },
-    IN_REVIEW:        { bg: colors.statusInReview.bg, color: colors.statusInReview.text, label: 'In Review' },
-    DRAFT:            { bg: colors.statusDraft.bg, color: colors.statusDraft.text, label: 'Draft' },
-    APPROVED:         { bg: colors.statusApproved.bg, color: colors.statusApproved.text, label: 'Approved' },
-  }
-  return map[status]
-}
 
 interface CardProps {
   assignment: Assignment
@@ -45,8 +14,8 @@ function TeacherCard({ assignment, onClick }: CardProps) {
   const badge = getBadgeStyle(assignment.status, colors)
 
   const actionLabel: Partial<Record<AssignmentStatus, { text: string; color: string }>> = {
-    PENDING_REVIEW:   { text: 'Review Now →',      color: colors.primary },
-    IN_REVIEW:        { text: 'Continue Review →', color: colors.primary },
+    PENDING_REVIEW: { text: 'Review Now →', color: colors.primary },
+    IN_REVIEW: { text: 'Continue Review →', color: colors.primary },
     REQUIRES_CHANGES: { text: 'Waiting for student', color: colors.textMuted },
   }
   const action = actionLabel[assignment.status]
@@ -103,7 +72,7 @@ function TeacherCard({ assignment, onClick }: CardProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: '0.8125rem', color: colors.textMuted, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
           </svg>
           {timeLabel}
         </span>
@@ -132,7 +101,7 @@ export default function TeacherDashboard({ assignments, isLoading, error, refetc
     navigate(`/assignments/${assignment.id}/review`)
   }
 
-  const grouped = STATUS_GROUPS.map(({ status, label, useAccent }) => ({
+  const grouped = getStatusGroups(TEACHER_STATUS_ORDER).map(({ status, label, useAccent }) => ({
     label,
     accent: useAccent ? colors.primary : undefined,
     items: assignments.filter((a) => a.status === status),

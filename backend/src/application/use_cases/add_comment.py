@@ -39,7 +39,9 @@ async def add_comment(
         raise UnauthorizedAssignmentAccessError()
 
     if assignment.status not in COMMENTABLE_STATUSES:
-        raise ValueError(f"Cannot add comments to assignment in status {assignment.status.value}")
+        raise ValueError(
+            f"Cannot add comments to assignment in status {assignment.status.value}"
+        )
 
     # Validate parent if provided (only 1 level deep allowed)
     if data.parent_id is not None:

@@ -24,6 +24,10 @@ async def submit_assignment(
         raise UnauthorizedAssignmentAccessError()
 
     if assignment.status not in SUBMITTABLE_STATUSES:
-        raise InvalidStatusTransitionError(assignment.status.value, AssignmentStatus.PENDING_REVIEW.value)
+        raise InvalidStatusTransitionError(
+            assignment.status.value, AssignmentStatus.PENDING_REVIEW.value
+        )
 
-    return await assignment_repo.update_status(assignment_id, AssignmentStatus.PENDING_REVIEW)
+    return await assignment_repo.update_status(
+        assignment_id, AssignmentStatus.PENDING_REVIEW
+    )

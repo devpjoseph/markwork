@@ -1,4 +1,5 @@
 """Unit tests for submit_assignment use case."""
+
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock
@@ -14,7 +15,9 @@ from src.domain.exceptions.assignment_exceptions import (
 )
 
 
-def _make_assignment(status: AssignmentStatus, student_id: uuid.UUID | None = None) -> AssignmentEntity:
+def _make_assignment(
+    status: AssignmentStatus, student_id: uuid.UUID | None = None
+) -> AssignmentEntity:
     now = datetime.now(timezone.utc)
     return AssignmentEntity(
         id=uuid.uuid4(),
@@ -31,7 +34,9 @@ def _make_assignment(status: AssignmentStatus, student_id: uuid.UUID | None = No
 async def test_submit_draft_succeeds():
     student_id = uuid.uuid4()
     assignment = _make_assignment(AssignmentStatus.DRAFT, student_id=student_id)
-    submitted = AssignmentEntity(**{**assignment.model_dump(), "status": AssignmentStatus.PENDING_REVIEW})
+    submitted = AssignmentEntity(
+        **{**assignment.model_dump(), "status": AssignmentStatus.PENDING_REVIEW}
+    )
 
     repo = AsyncMock()
     repo.get_by_id.return_value = assignment
@@ -40,14 +45,20 @@ async def test_submit_draft_succeeds():
     result = await submit_assignment(assignment.id, student_id, repo)
 
     assert result.status == AssignmentStatus.PENDING_REVIEW
-    repo.update_status.assert_awaited_once_with(assignment.id, AssignmentStatus.PENDING_REVIEW)
+    repo.update_status.assert_awaited_once_with(
+        assignment.id, AssignmentStatus.PENDING_REVIEW
+    )
 
 
 @pytest.mark.asyncio
 async def test_submit_requires_changes_succeeds():
     student_id = uuid.uuid4()
-    assignment = _make_assignment(AssignmentStatus.REQUIRES_CHANGES, student_id=student_id)
-    submitted = AssignmentEntity(**{**assignment.model_dump(), "status": AssignmentStatus.PENDING_REVIEW})
+    assignment = _make_assignment(
+        AssignmentStatus.REQUIRES_CHANGES, student_id=student_id
+    )
+    submitted = AssignmentEntity(
+        **{**assignment.model_dump(), "status": AssignmentStatus.PENDING_REVIEW}
+    )
 
     repo = AsyncMock()
     repo.get_by_id.return_value = assignment

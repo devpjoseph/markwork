@@ -1,7 +1,7 @@
 import asyncio
 import json
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -30,14 +30,15 @@ class SSEConnectionManager:
         return queue
 
     def disconnect(self, user_id: uuid.UUID, queue: asyncio.Queue) -> None:
-        if user_id in self._connections:
-            self._connections[user_id].discard(queue) if hasattr(self._connections[user_id], "discard") else None
-            try:
-                self._connections[user_id].remove(queue)
-            except ValueError:
-                pass
-            if not self._connections[user_id]:
-                del self._connections[user_id]
+        queues = self._connections.get(user_id)
+        if queues is None:
+            return
+        try:
+            queues.remove(queue)
+        except ValueError:
+            pass
+        if not queues:
+            del self._connections[user_id]
 
     async def push(self, event: SSEEvent) -> None:
         queues = self._connections.get(event.target_user_id, [])

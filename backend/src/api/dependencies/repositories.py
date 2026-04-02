@@ -14,7 +14,9 @@ def get_user_repo(session: AsyncSession = Depends(get_db)) -> IUserRepository:
     return UserRepository(session)
 
 
-def get_assignment_repo(session: AsyncSession = Depends(get_db)) -> IAssignmentRepository:
+def get_assignment_repo(
+    session: AsyncSession = Depends(get_db),
+) -> IAssignmentRepository:
     return AssignmentRepository(session)
 
 

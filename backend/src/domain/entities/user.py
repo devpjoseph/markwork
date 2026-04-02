@@ -1,7 +1,7 @@
 import uuid
 from enum import Enum
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
 class UserRole(str, Enum):

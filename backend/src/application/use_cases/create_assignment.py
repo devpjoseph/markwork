@@ -22,7 +22,9 @@ async def create_assignment(
 ) -> AssignmentEntity:
     teacher = await user_repo.get_by_id(data.teacher_id)
     if not teacher or teacher.role != UserRole.TEACHER or not teacher.is_active:
-        raise ValueError(f"Teacher {data.teacher_id} not found or is not an active teacher")
+        raise ValueError(
+            f"Teacher {data.teacher_id} not found or is not an active teacher"
+        )
 
     return await assignment_repo.create(
         student_id=data.student_id,

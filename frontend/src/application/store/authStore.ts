@@ -18,12 +18,10 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       setSession: (user, token) => {
-        localStorage.setItem('access_token', token)
         set({ user, token, isAuthenticated: true })
       },
 
       clearSession: () => {
-        localStorage.removeItem('access_token')
         set({ user: null, token: null, isAuthenticated: false })
       },
     }),

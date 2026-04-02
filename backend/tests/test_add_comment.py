@@ -1,4 +1,5 @@
 """Unit tests for add_comment use case."""
+
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock
@@ -15,7 +16,9 @@ from src.domain.exceptions.assignment_exceptions import (
 )
 
 
-def _make_assignment(status: AssignmentStatus, teacher_id: uuid.UUID | None = None) -> AssignmentEntity:
+def _make_assignment(
+    status: AssignmentStatus, teacher_id: uuid.UUID | None = None
+) -> AssignmentEntity:
     now = datetime.now(timezone.utc)
     return AssignmentEntity(
         id=uuid.uuid4(),
@@ -130,4 +133,64 @@ async def test_add_comment_draft_status_raises():
             ),
             assignment_repo=assignment_repo,
             comment_repo=AsyncMock(),
+        )
+
+
+@pytest.mark.asyncio
+async def test_add_comment_as_child_succeeds():
+    teacher_id = uuid.uuid4()
+    assignment = _make_assignment(AssignmentStatus.IN_REVIEW, teacher_id=teacher_id)
+    parent_comment = _make_comment(assignment.id, teacher_id)
+    child_comment = _make_comment(assignment.id, teacher_id)
+    child_comment.parent_id = parent_comment.id
+
+    assignment_repo = AsyncMock()
+    assignment_repo.get_by_id.return_value = assignment
+
+    comment_repo = AsyncMock()
+    # When get_by_id is called with parent_id, return parent_comment
+    comment_repo.get_by_id.return_value = parent_comment
+    comment_repo.create.return_value = child_comment
+
+    result = await add_comment(
+        AddCommentInput(
+            assignment_id=assignment.id,
+            author_id=teacher_id,
+            author_role=UserRole.TEACHER,
+            tiptap_node_id=child_comment.tiptap_node_id,
+            selected_text=child_comment.selected_text,
+            content=child_comment.content,
+            parent_id=parent_comment.id,
+        ),
+        assignment_repo=assignment_repo,
+        comment_repo=comment_repo,
+    )
+    assert result.parent_id == parent_comment.id
+    comment_repo.create.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_add_comment_as_child_parent_not_found_raises():
+    teacher_id = uuid.uuid4()
+    assignment = _make_assignment(AssignmentStatus.IN_REVIEW, teacher_id=teacher_id)
+
+    assignment_repo = AsyncMock()
+    assignment_repo.get_by_id.return_value = assignment
+
+    comment_repo = AsyncMock()
+    comment_repo.get_by_id.return_value = None
+
+    with pytest.raises(ValueError, match="not found"):
+        await add_comment(
+            AddCommentInput(
+                assignment_id=assignment.id,
+                author_id=teacher_id,
+                author_role=UserRole.TEACHER,
+                tiptap_node_id=str(uuid.uuid4()),
+                selected_text="text",
+                content="comment",
+                parent_id=uuid.uuid4(),
+            ),
+            assignment_repo=assignment_repo,
+            comment_repo=comment_repo,
         )

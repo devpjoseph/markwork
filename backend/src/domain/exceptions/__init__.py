@@ -1,5 +1,4 @@
 from src.domain.exceptions.assignment_exceptions import (
-    AssignmentNotDraftError,
     AssignmentNotEditableError,
     AssignmentNotFoundError,
     InvalidStatusTransitionError,
@@ -8,7 +7,6 @@ from src.domain.exceptions.assignment_exceptions import (
 
 __all__ = [
     "AssignmentNotFoundError",
-    "AssignmentNotDraftError",
     "AssignmentNotEditableError",
     "InvalidStatusTransitionError",
     "UnauthorizedAssignmentAccessError",

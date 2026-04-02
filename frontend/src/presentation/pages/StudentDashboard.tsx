@@ -4,41 +4,9 @@ import { assignmentRepository } from '@infrastructure/repositories/assignmentRep
 import { userRepository } from '@infrastructure/repositories/userRepository'
 import { useAssignmentStore } from '@application/store/assignmentStore'
 import { useTheme } from '@application/theme/useTheme'
-import type { Assignment, AssignmentStatus, TipTapNode } from '@domain/models'
-import type { ThemeColors } from '@application/theme/themeTokens'
+import type { Assignment, TipTapNode } from '@domain/models'
+import { formatDate, getBadgeStyle, getStatusGroups, STUDENT_STATUS_ORDER } from '../utils/dashboardUtils'
 
-const STATUS_GROUPS: { status: AssignmentStatus; label: string; useAccent?: boolean }[] = [
-  { status: 'REQUIRES_CHANGES', label: 'Returned for Revision', useAccent: true },
-  { status: 'PENDING_REVIEW', label: 'Pending Review' },
-  { status: 'IN_REVIEW', label: 'In Review' },
-  { status: 'DRAFT', label: 'Drafts' },
-  { status: 'APPROVED', label: 'Approved' },
-]
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffHours / 24)
-
-  if (diffHours < 1) return 'Just now'
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 7) return `${diffDays} days ago`
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function getBadgeStyle(status: AssignmentStatus, colors: ThemeColors): { bg: string; color: string; label: string } {
-  const map: Record<AssignmentStatus, { bg: string; color: string; label: string }> = {
-    REQUIRES_CHANGES: { bg: colors.statusRequiresChanges.bg, color: colors.statusRequiresChanges.text, label: 'Returned' },
-    PENDING_REVIEW:   { bg: colors.statusPending.bg, color: colors.statusPending.text, label: 'Pending Review' },
-    IN_REVIEW:        { bg: colors.statusInReview.bg, color: colors.statusInReview.text, label: 'In Review' },
-    DRAFT:            { bg: colors.statusDraft.bg, color: colors.statusDraft.text, label: 'Draft' },
-    APPROVED:         { bg: colors.statusApproved.bg, color: colors.statusApproved.text, label: 'Approved' },
-  }
-  return map[status]
-}
 
 interface AssignmentCardProps {
   assignment: Assignment
@@ -100,7 +68,7 @@ function StudentCard({ assignment, onClick, onDelete }: AssignmentCardProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: '0.8125rem', color: colors.textMuted, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
           </svg>
           {isReturned ? `Modified ${formatDate(assignment.updated_at)}` : `Updated ${formatDate(assignment.updated_at)}`}
         </span>
@@ -379,7 +347,7 @@ export default function StudentDashboard({ assignments, isLoading, error, refetc
     }
   }
 
-  const grouped = STATUS_GROUPS.map(({ status, label, useAccent }) => ({
+  const grouped = getStatusGroups(STUDENT_STATUS_ORDER).map(({ status, label, useAccent }) => ({
     label,
     accent: useAccent ? colors.primary : undefined,
     items: assignments.filter((a) => a.status === status),

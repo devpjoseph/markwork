@@ -1,4 +1,5 @@
 """Pytest configuration for backend unit tests."""
+
 import os
 import sys
 

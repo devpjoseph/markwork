@@ -29,7 +29,9 @@ class UserRepository(IUserRepository):
         await self._session.refresh(user)
         return UserEntity.model_validate(user)
 
-    async def set_active(self, user_id: uuid.UUID, is_active: bool) -> UserEntity | None:
+    async def set_active(
+        self, user_id: uuid.UUID, is_active: bool
+    ) -> UserEntity | None:
         result = await self._session.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user:
@@ -40,6 +42,8 @@ class UserRepository(IUserRepository):
         return UserEntity.model_validate(user)
 
     async def list_by_role(self, role: UserRole) -> list[UserEntity]:
-        result = await self._session.execute(select(User).where(User.role == role, User.is_active.is_(True)))
+        result = await self._session.execute(
+            select(User).where(User.role == role, User.is_active.is_(True))
+        )
         users = result.scalars().all()
         return [UserEntity.model_validate(u) for u in users]

@@ -1,4 +1,5 @@
 """Unit tests for review_assignment use case."""
+
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock
@@ -19,7 +20,9 @@ from src.domain.exceptions.assignment_exceptions import (
 )
 
 
-def _make_assignment(status: AssignmentStatus, teacher_id: uuid.UUID | None = None) -> AssignmentEntity:
+def _make_assignment(
+    status: AssignmentStatus, teacher_id: uuid.UUID | None = None
+) -> AssignmentEntity:
     now = datetime.now(timezone.utc)
     return AssignmentEntity(
         id=uuid.uuid4(),
@@ -34,11 +37,16 @@ def _make_assignment(status: AssignmentStatus, teacher_id: uuid.UUID | None = No
 
 # ── start_review ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_start_review_succeeds():
     teacher_id = uuid.uuid4()
-    assignment = _make_assignment(AssignmentStatus.PENDING_REVIEW, teacher_id=teacher_id)
-    in_review = AssignmentEntity(**{**assignment.model_dump(), "status": AssignmentStatus.IN_REVIEW})
+    assignment = _make_assignment(
+        AssignmentStatus.PENDING_REVIEW, teacher_id=teacher_id
+    )
+    in_review = AssignmentEntity(
+        **{**assignment.model_dump(), "status": AssignmentStatus.IN_REVIEW}
+    )
 
     repo = AsyncMock()
     repo.get_by_id.return_value = assignment
@@ -80,18 +88,25 @@ async def test_start_review_wrong_status_raises():
 
 # ── finalize_review ───────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_finalize_review_approve():
     teacher_id = uuid.uuid4()
     assignment = _make_assignment(AssignmentStatus.IN_REVIEW, teacher_id=teacher_id)
-    approved = AssignmentEntity(**{**assignment.model_dump(), "status": AssignmentStatus.APPROVED})
+    approved = AssignmentEntity(
+        **{**assignment.model_dump(), "status": AssignmentStatus.APPROVED}
+    )
 
     repo = AsyncMock()
     repo.get_by_id.return_value = assignment
     repo.update_status.return_value = approved
 
     result = await finalize_review(
-        ReviewAssignmentInput(assignment_id=assignment.id, teacher_id=teacher_id, decision=ReviewDecision.APPROVE),
+        ReviewAssignmentInput(
+            assignment_id=assignment.id,
+            teacher_id=teacher_id,
+            decision=ReviewDecision.APPROVE,
+        ),
         assignment_repo=repo,
     )
     assert result.status == AssignmentStatus.APPROVED
@@ -101,7 +116,9 @@ async def test_finalize_review_approve():
 async def test_finalize_review_request_changes():
     teacher_id = uuid.uuid4()
     assignment = _make_assignment(AssignmentStatus.IN_REVIEW, teacher_id=teacher_id)
-    changes = AssignmentEntity(**{**assignment.model_dump(), "status": AssignmentStatus.REQUIRES_CHANGES})
+    changes = AssignmentEntity(
+        **{**assignment.model_dump(), "status": AssignmentStatus.REQUIRES_CHANGES}
+    )
 
     repo = AsyncMock()
     repo.get_by_id.return_value = assignment
@@ -121,7 +138,9 @@ async def test_finalize_review_request_changes():
 @pytest.mark.asyncio
 async def test_finalize_review_not_in_review_raises():
     teacher_id = uuid.uuid4()
-    assignment = _make_assignment(AssignmentStatus.PENDING_REVIEW, teacher_id=teacher_id)
+    assignment = _make_assignment(
+        AssignmentStatus.PENDING_REVIEW, teacher_id=teacher_id
+    )
     repo = AsyncMock()
     repo.get_by_id.return_value = assignment
 
