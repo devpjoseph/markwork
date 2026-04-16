@@ -8,6 +8,9 @@ import DashboardPage from '@presentation/pages/DashboardPage'
 import AssignmentEditorPage from '@presentation/pages/AssignmentEditorPage'
 import AssignmentReviewPage from '@presentation/pages/AssignmentReviewPage'
 import FocusedDocumentPage from '@presentation/pages/FocusedDocumentPage'
+import AdminUsersPage from '@presentation/pages/AdminUsersPage'
+import PendingApprovalPage from '@presentation/pages/PendingApprovalPage'
+import RoleProtectedRoute from '@presentation/components/RoleProtectedRoute'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -21,6 +24,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/pending-approval" element={<ProtectedRoute><PendingApprovalPage /></ProtectedRoute>} />
       {/* Dashboard — padded layout */}
       <Route
         path="/"
@@ -31,6 +35,17 @@ function AppRoutes() {
         }
       >
         <Route index element={<DashboardPage />} />
+      </Route>
+      {/* Admin — padded layout, ADMIN only */}
+      <Route
+        path="/admin"
+        element={
+          <RoleProtectedRoute role="ADMIN">
+            <MainLayout />
+          </RoleProtectedRoute>
+        }
+      >
+        <Route path="users" element={<AdminUsersPage />} />
       </Route>
       {/* Full-screen editor/review — no padding, no outer scroll */}
       <Route

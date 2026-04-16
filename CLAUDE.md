@@ -155,6 +155,7 @@ http://localhost:5173
 | **Phase 2** | ✅ Done | Use cases, auth (JWT + Google), routers, SSE |
 | **Phase 3** | ✅ Done | TipTap editor + read-only viewer, CommentHighlightExtension (ProseMirror decorations), DiffViewer, FocusedDocumentPage wired, SSE token via query param |
 | **Phase 4** | ✅ Done | Alembic migration (1818d9d6f6b5_initial), unit tests (pytest-asyncio), CORS configurable via ALLOWED_ORIGINS, .env.example |
+| **Phase 5** | 🔧 In Progress | Admin role, user approval gate (`is_active` defaults false), admin CRUD endpoints, `RoleProtectedRoute`, `PendingApprovalPage`, `create_admin` script |
 
 ---
 

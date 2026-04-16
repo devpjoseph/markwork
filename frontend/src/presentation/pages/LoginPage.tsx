@@ -35,8 +35,8 @@ export default function LoginPage() {
         setIsLoading(true)
         setError(null)
         try {
-          await loginWithGoogle(idToken, selectedRoleRef.current)
-          navigate('/', { replace: true })
+          const isActive = await loginWithGoogle(idToken, selectedRoleRef.current)
+          navigate(isActive ? '/' : '/pending-approval', { replace: true })
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Login failed. Please try again.')
         } finally {

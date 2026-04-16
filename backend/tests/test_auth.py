@@ -52,7 +52,10 @@ def test_student_register(mock_user_repo):
         # However, testing router directly, so we just patch verify_google_token.
         # Actually JWT uses a SECRET_KEY, which conftest sets to "test_secret_key_for_unit_tests_only"
 
-        response = client.post("/api/v1/auth/google", json={"id_token": "valid_token"})
+        response = client.post(
+            "/api/v1/auth/google",
+            json={"id_token": "valid_token", "role": "STUDENT"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -86,7 +89,10 @@ def test_student_login(mock_user_repo):
     ) as mock_verify:
         mock_verify.return_value = google_data
 
-        response = client.post("/api/v1/auth/google", json={"id_token": "valid_token"})
+        response = client.post(
+            "/api/v1/auth/google",
+            json={"id_token": "valid_token", "role": "STUDENT"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -113,7 +119,10 @@ def test_teacher_login(mock_user_repo):
     ) as mock_verify:
         mock_verify.return_value = google_data
 
-        response = client.post("/api/v1/auth/google", json={"id_token": "valid_token"})
+        response = client.post(
+            "/api/v1/auth/google",
+            json={"id_token": "valid_token", "role": "STUDENT"},
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -139,7 +148,10 @@ def test_inactive_user_login(mock_user_repo):
             "full_name": "Test User",
         }
 
-        response = client.post("/api/v1/auth/google", json={"id_token": "valid_token"})
+        response = client.post(
+            "/api/v1/auth/google",
+            json={"id_token": "valid_token", "role": "STUDENT"},
+        )
 
         assert response.status_code == 403
         assert "Account is deactivated" in response.json()["detail"]

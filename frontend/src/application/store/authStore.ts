@@ -28,6 +28,14 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'markwork-auth',
       partialize: (state) => ({ user: state.user, token: state.token }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<AuthState> | undefined
+        return {
+          ...current,
+          ...p,
+          isAuthenticated: !!(p?.user && p?.token),
+        }
+      },
     },
   ),
 )

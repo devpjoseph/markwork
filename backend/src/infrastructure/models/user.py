@@ -19,7 +19,9 @@ class User(Base):
     )
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[UserRole] = mapped_column(nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
 
     # Relationships
     assignments_as_student: Mapped[list["Assignment"]] = relationship(  # noqa: F821

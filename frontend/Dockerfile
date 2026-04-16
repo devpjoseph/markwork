@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY . .
 
-RUN adduser -D appuser
+RUN adduser -D appuser && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 5173

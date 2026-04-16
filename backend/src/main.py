@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
-from src.api.routers import assignments, auth, comments, notifications, users
+from src.api.routers import admin, assignments, auth, comments, notifications, users
 from src.config import settings
 
 
@@ -33,6 +33,7 @@ def create_app() -> FastAPI:
 
     prefix = settings.API_V1_PREFIX
     app.include_router(auth.router, prefix=prefix)
+    app.include_router(admin.router, prefix=prefix)
     app.include_router(users.router, prefix=prefix)
     app.include_router(assignments.router, prefix=prefix)
     app.include_router(comments.router, prefix=prefix)

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from src.api.dependencies.repositories import get_user_repo
 from src.application.use_cases.authenticate_user import authenticate_with_google
-from src.domain.entities.user import UserEntity
+from src.domain.entities.user import UserEntity, UserRole
 from src.infrastructure.auth.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -11,6 +11,14 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 class GoogleAuthRequest(BaseModel):
     id_token: str
+    role: UserRole
+
+    @field_validator("role")
+    @classmethod
+    def _role_must_be_student_or_teacher(cls, v: UserRole) -> UserRole:
+        if v not in (UserRole.STUDENT, UserRole.TEACHER):
+            raise ValueError("role must be STUDENT or TEACHER")
+        return v
 
 
 class AuthResponse(BaseModel):
@@ -30,6 +38,7 @@ async def google_login(
             google_id_token=body.id_token,
             user_repo=user_repo,
             auth_service=auth_service,
+            requested_role=body.role,
         )
     except PermissionError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))

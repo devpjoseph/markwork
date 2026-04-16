@@ -1,5 +1,6 @@
 import uuid
 from enum import Enum
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
@@ -18,3 +19,14 @@ class UserEntity(BaseModel):
     is_active: bool
 
     model_config = {"from_attributes": True}
+
+
+T = TypeVar("T")
+
+
+class PaginatedResult(BaseModel, Generic[T]):
+    items: list[T]
+    total: int
+    page: int
+    size: int
+    pages: int
