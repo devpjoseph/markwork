@@ -26,9 +26,9 @@ class Settings(BaseSettings):
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
-    def ensure_asyncpg_scheme(cls, v: str) -> str:
-        if v.startswith("postgresql://"):
-            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+    def ensure_asyncpg_scheme(cls, v: object) -> str:
+        if isinstance(v, str) and v.startswith(("postgresql://", "postgres://")):
+            return "postgresql+asyncpg://" + v.split("://", 1)[1]
         return v
 
     @property
